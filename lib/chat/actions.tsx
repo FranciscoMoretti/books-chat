@@ -24,7 +24,7 @@ import { EventsSkeleton } from '@/components/stocks/events-skeleton'
 import { Events } from '@/components/stocks/events'
 import { StocksSkeleton } from '@/components/stocks/stocks-skeleton'
 import { Stocks } from '@/components/stocks/stocks'
-import { Books } from '@/components/stocks/books'
+import { BookDetails, Books } from '@/components/stocks/books'
 import { StockSkeleton } from '@/components/stocks/stock-skeleton'
 import {
   formatNumber,
@@ -39,8 +39,12 @@ import { auth } from '@/auth'
 import {
   BookMetadata,
   BookMetadataReduced,
-  fetchSearchMultiBookMetadata
+  fetchBooksWithQuery,
+  fetchSearchBookMetadata,
+  fetchSearchMultiBookMetadata,
+  fetchVolumeByID
 } from '../book/books-api'
+import { volumeToMetadata } from '../book/volumeToMetadata'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || ''
@@ -203,38 +207,30 @@ Besides that, you can also chat with users and do some calculations if needed.`
     },
     functions: {
       listBooks: {
-        description: 'List three books that are trending.',
+        description: 'List books based on a query.',
         parameters: z.object({
-          books: z.array(
-            z.object({
-              title: z.string().describe('The title of the book'),
-              author: z.string().describe('The author of the book')
-            })
-          )
+          query: z.string().describe('Query to find the books')
         }),
-        render: async function* ({ books }) {
+        render: async function* ({ query }) {
           yield (
             <BotCard>
               <StocksSkeleton />
             </BotCard>
           )
 
-          // API Call
-          await sleep(1000)
-          const booksMetadata = await fetchSearchMultiBookMetadata(books)
+          const booksMetadata = await fetchBooksWithQuery(query)
 
+          if (booksMetadata === null) {
+            return <div>Book Fetching Error</div>
+          }
           console.log(booksMetadata)
 
           // Remove description from metadata
           const bookMetadataReduced = booksMetadata
             .map(book => {
               if (book) {
-                const { description, image, ...rest } = book
-                return {
-                  // Replace http for https in image
-                  image: image.replace('http://', 'https://'),
-                  ...rest
-                }
+                const { description, ...rest } = book
+                return rest
               }
             })
             .filter(meta => meta != undefined) as BookMetadataReduced[]
@@ -247,7 +243,7 @@ Besides that, you can also chat with users and do some calculations if needed.`
                 id: nanoid(),
                 role: 'function',
                 name: 'listBooks',
-                content: JSON.stringify(booksMetadata)
+                content: JSON.stringify(bookMetadataReduced)
               }
             ]
           })
@@ -255,6 +251,51 @@ Besides that, you can also chat with users and do some calculations if needed.`
           return (
             <BotCard>
               <Books props={bookMetadataReduced} />
+            </BotCard>
+          )
+        }
+      },
+      viewBookByID: {
+        description: 'Show details about a book by ID.',
+        parameters: z.object({
+          bookId: z.string().describe('The book ID')
+        }),
+        render: async function* ({ bookId }) {
+          yield (
+            <BotCard>
+              <StocksSkeleton />
+            </BotCard>
+          )
+
+          const bookVolume = await fetchVolumeByID(bookId)
+
+          if (bookVolume === null) {
+            return <div>Book ID Fetching Error</div>
+          }
+          console.log(bookVolume)
+
+          const bookMetadata = volumeToMetadata(bookVolume)
+
+          if (bookMetadata === null) {
+            return <div>Book content Error</div>
+          }
+
+          aiState.done({
+            ...aiState.get(),
+            messages: [
+              ...aiState.get().messages,
+              {
+                id: nanoid(),
+                role: 'function',
+                name: 'listBooks',
+                content: JSON.stringify(bookMetadata)
+              }
+            ]
+          })
+
+          return (
+            <BotCard>
+              <BookDetails props={bookMetadata} />
             </BotCard>
           )
         }

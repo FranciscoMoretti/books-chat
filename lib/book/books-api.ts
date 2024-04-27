@@ -1,6 +1,9 @@
 'use server'
 
-const apiUrl = 'https://www.googleapis.com/books/v1/volumes'
+import { volumeToMetadata } from './volumeToMetadata'
+
+const apiVolumesURL = 'https://www.googleapis.com/books/v1/volumes'
+const apiVolumeIdURL = 'https://www.googleapis.com/books/v1/volumes/'
 
 export type BookMetadata = {
   title: string
@@ -11,13 +14,14 @@ export type BookMetadata = {
 }
 
 export type BookMetadataReduced = {
+  id: string
   title: string
   author: string
   publishedDate: string
   image: string
 }
 
-type VolumeInfo = {
+export type VolumeInfo = {
   title: string
   authors: string[]
   description: string
@@ -28,8 +32,13 @@ type VolumeInfo = {
   }
 }
 
-type GoogleBooksResponse = {
-  items?: { volumeInfo: VolumeInfo }[]
+type GoogleBooksVolume = {
+  volumeInfo: VolumeInfo
+  id: string
+}
+
+type GoogleBooksVolumeListResponse = {
+  items?: GoogleBooksVolume[]
 }
 
 export async function fetchSearchMultiBookMetadata(
@@ -47,21 +56,21 @@ export async function fetchSearchBookMetadata(
   author: string
 ): Promise<BookMetadata | null> {
   const query = `${title} by ${author}`
-  const url = `${apiUrl}?q=${query}&key=${process.env.GOOGLE_BOOKS_API_KEY}`
+  const url = `${apiVolumesURL}?q=${query}&key=${process.env.GOOGLE_BOOKS_API_KEY}`
 
   return fetch(url)
     .then(response => {
       if (!response.ok) {
         throw new Error('Network response was not ok')
       }
-      return response.json() as Promise<GoogleBooksResponse>
+      return response.json() as Promise<GoogleBooksVolumeListResponse>
     })
     .then(data => {
       const items = data.items ?? []
 
       if (items.length > 0 && items[0]) {
         for (const item of items) {
-          const metadata = volumeInfoToMetadata(item.volumeInfo)
+          const metadata = volumeToMetadata(item)
           if (metadata) {
             return metadata
           }
@@ -81,33 +90,53 @@ export async function fetchSearchBookMetadata(
     })
 }
 
-function volumeInfoToMetadata(firstBook: VolumeInfo): {
-  title: string
-  author: string
-  description: string
-  publishedDate: string
-  image: string
-} | null {
-  if (!firstBook.imageLinks) {
-    return null
-  }
-  return {
-    title: firstBook.title,
-    author: firstBook.authors.join(', '),
-    description: firstBook.description,
-    publishedDate: firstBook.publishedDate,
-    image: changeZoomValue(firstBook.imageLinks.thumbnail, 2)
-  }
+export async function fetchVolumeByID(
+  bookID: string
+): Promise<GoogleBooksVolume | null> {
+  const url = `${apiVolumeIdURL}${bookID}?key=${process.env.GOOGLE_BOOKS_API_KEY}`
+
+  console.log(url)
+  return fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        console.error(response)
+        throw new Error('Network response was not ok')
+      }
+      return response.json() as Promise<GoogleBooksVolume>
+    })
+    .catch(error => {
+      console.error('Error:', error)
+      return null
+    })
 }
 
-function changeZoomValue(originalUrl: string, newZoomValue: number) {
-  // Check if the URL contains the 'zoom' parameter
-  if (originalUrl.includes('zoom=')) {
-    // Replace the existing 'zoom' parameter with the new zoom value
-    return originalUrl.replace(/zoom=\d+/, `zoom=${newZoomValue}`)
-  } else {
-    // If 'zoom' parameter doesn't exist, add it to the URL
-    const separator = originalUrl.includes('?') ? '&' : '?'
-    return `${originalUrl}${separator}zoom=${newZoomValue}`
-  }
+export async function fetchBooksWithQuery(
+  query: string,
+  maxResults: number = 3
+): Promise<BookMetadata[] | null> {
+  const url = `${apiVolumesURL}?q=${query}&maxResults=${maxResults}&key=${process.env.GOOGLE_BOOKS_API_KEY}`
+
+  return fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
+      return response.json() as Promise<GoogleBooksVolumeListResponse>
+    })
+    .then(data => {
+      const items = data.items ?? []
+
+      if (items.length > 0 && items[0]) {
+        return items
+          .map(item => volumeToMetadata(item))
+          .filter(Boolean) as BookMetadata[]
+      } else {
+        console.error(`Book not found for query: ${query}`)
+        return null
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error)
+      return null
+    })
 }
