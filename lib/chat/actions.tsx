@@ -24,6 +24,7 @@ import { EventsSkeleton } from '@/components/stocks/events-skeleton'
 import { Events } from '@/components/stocks/events'
 import { StocksSkeleton } from '@/components/stocks/stocks-skeleton'
 import { Stocks } from '@/components/stocks/stocks'
+import { Books } from '@/components/stocks/books'
 import { StockSkeleton } from '@/components/stocks/stock-skeleton'
 import {
   formatNumber,
@@ -35,6 +36,11 @@ import { saveChat } from '@/app/actions'
 import { SpinnerMessage, UserMessage } from '@/components/stocks/message'
 import { Chat } from '@/lib/types'
 import { auth } from '@/auth'
+import {
+  BookMetadata,
+  BookMetadataReduced,
+  fetchSearchMultiBookMetadata
+} from '../book/books-api'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || ''
@@ -149,7 +155,7 @@ async function submitUserMessage(content: string) {
       {
         role: 'system',
         content: `\
-You are a stock trading conversation bot and you can help users buy stocks, step by step.
+You are a book suggestion conversation bot and you can help users find books, step by step.
 You and the user can discuss stock prices and the user can adjust the amount of stocks they want to buy, or place an order, in the UI.
 
 Messages inside [] means that it's a UI element or a user event. For example:
@@ -196,6 +202,63 @@ Besides that, you can also chat with users and do some calculations if needed.`
       return textNode
     },
     functions: {
+      listBooks: {
+        description: 'List three books that are trending.',
+        parameters: z.object({
+          books: z.array(
+            z.object({
+              title: z.string().describe('The title of the book'),
+              author: z.string().describe('The author of the book')
+            })
+          )
+        }),
+        render: async function* ({ books }) {
+          yield (
+            <BotCard>
+              <StocksSkeleton />
+            </BotCard>
+          )
+
+          // API Call
+          await sleep(1000)
+          const booksMetadata = await fetchSearchMultiBookMetadata(books)
+
+          console.log(booksMetadata)
+
+          // Remove description from metadata
+          const bookMetadataReduced = booksMetadata
+            .map(book => {
+              if (book) {
+                const { description, image, ...rest } = book
+                return {
+                  // Replace http for https in image
+                  image: image.replace('http://', 'https://'),
+                  ...rest
+                }
+              }
+            })
+            .filter(meta => meta != undefined) as BookMetadataReduced[]
+
+          aiState.done({
+            ...aiState.get(),
+            messages: [
+              ...aiState.get().messages,
+              {
+                id: nanoid(),
+                role: 'function',
+                name: 'listBooks',
+                content: JSON.stringify(booksMetadata)
+              }
+            ]
+          })
+
+          return (
+            <BotCard>
+              <Books props={bookMetadataReduced} />
+            </BotCard>
+          )
+        }
+      },
       listStocks: {
         description: 'List three imaginary stocks that are trending.',
         parameters: z.object({
