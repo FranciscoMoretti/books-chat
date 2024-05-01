@@ -6,6 +6,7 @@ const apiVolumesURL = 'https://www.googleapis.com/books/v1/volumes'
 const apiVolumeIdURL = 'https://www.googleapis.com/books/v1/volumes/'
 
 export type BookMetadata = {
+  id: string
   title: string
   author: string
   description: string

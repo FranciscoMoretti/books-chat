@@ -24,7 +24,8 @@ import { EventsSkeleton } from '@/components/stocks/events-skeleton'
 import { Events } from '@/components/stocks/events'
 import { StocksSkeleton } from '@/components/stocks/stocks-skeleton'
 import { Stocks } from '@/components/stocks/stocks'
-import { BookDetails, Books } from '@/components/stocks/books'
+import { Books } from '@/components/stocks/books'
+import { BookCard } from '@/components/stocks/Book-card'
 import { StockSkeleton } from '@/components/stocks/stock-skeleton'
 import {
   formatNumber,
@@ -221,11 +222,11 @@ Besides that, you can also chat with users and do some calculations if needed.`
           const booksMetadata = await fetchBooksWithQuery(query)
 
           if (booksMetadata === null) {
-            return <div>Book Fetching Error</div>
+            return <div>Fetching Error</div>
           }
           console.log(booksMetadata)
 
-          // Remove description from metadata
+          // Remove description from metadata to save in AI state
           const bookMetadataReduced = booksMetadata
             .map(book => {
               if (book) {
@@ -250,7 +251,7 @@ Besides that, you can also chat with users and do some calculations if needed.`
 
           return (
             <BotCard>
-              <Books props={bookMetadataReduced} />
+              <Books props={booksMetadata} />
             </BotCard>
           )
         }
@@ -270,14 +271,14 @@ Besides that, you can also chat with users and do some calculations if needed.`
           const bookVolume = await fetchVolumeByID(bookId)
 
           if (bookVolume === null) {
-            return <div>Book ID Fetching Error</div>
+            return <div>ID Fetching Error</div>
           }
           console.log(bookVolume)
 
           const bookMetadata = volumeToMetadata(bookVolume)
 
           if (bookMetadata === null) {
-            return <div>Book content Error</div>
+            return <div>content Error</div>
           }
 
           aiState.done({
@@ -295,7 +296,13 @@ Besides that, you can also chat with users and do some calculations if needed.`
 
           return (
             <BotCard>
-              <BookDetails props={bookMetadata} />
+              <BookCard
+                props={bookMetadata}
+                width={700}
+                height={1200}
+                orientation={'portrait'}
+                variant="big"
+              />
             </BotCard>
           )
         }

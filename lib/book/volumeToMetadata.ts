@@ -1,16 +1,9 @@
-import { VolumeInfo } from './books-api'
+import { BookMetadata, VolumeInfo } from './books-api'
 
 export function volumeToMetadata(item: {
   id: string
   volumeInfo: VolumeInfo
-}): {
-  id: string
-  title: string
-  author: string
-  description: string
-  publishedDate: string
-  image: string
-} | null {
+}): BookMetadata | null {
   if (!item.volumeInfo.imageLinks) {
     return null
   }
