@@ -40,9 +40,8 @@ import { auth } from '@/auth'
 import {
   BookMetadata,
   BookMetadataReduced,
-  fetchBooksWithQuery,
-  fetchSearchBookMetadata,
-  fetchSearchMultiBookMetadata,
+  fetchVolumesByQuery,
+  fetchMultipleBooksByTitleAuthor,
   fetchVolumeByID
 } from '../book/books-api'
 import { volumeToMetadata } from '../book/volumeToMetadata'
@@ -161,17 +160,17 @@ async function submitUserMessage(content: string) {
         role: 'system',
         content: `\
 You are a book suggestion conversation bot and you can help users find books, step by step.
-You and the user can discuss stock prices and the user can adjust the amount of stocks they want to buy, or place an order, in the UI.
+You and the user can discuss books and the user can ask you to suggest or find books, in the UI.
 
 Messages inside [] means that it's a UI element or a user event. For example:
 - "[Price of AAPL = 100]" means that an interface of the stock price of AAPL is shown to the user.
 - "[User has changed the amount of AAPL to 10]" means that the user has changed the amount of AAPL to 10 in the UI.
 
-If the user requests purchasing a stock, call \`show_stock_purchase_ui\` to show the purchase UI.
-If the user just wants the price, call \`show_stock_price\` to show the price.
-If you want to show trending stocks, call \`list_stocks\`.
-If you want to show events, call \`get_events\`.
-If the user wants to sell stock, or complete another impossible task, respond that you are a demo and cannot do that.
+If the user wants a search with keyword match, call \`findBooksByKeywords\` to show a list of books.
+If the user wants books on a topic, call \`listBooks\` to show a list of books.
+If you want to show details of a book by its id, call \`viewBookByID\`.
+
+If the user wants to buy a book, or complete another impossible task, respond that you are a demo and cannot do that.
 
 Besides that, you can also chat with users and do some calculations if needed.`
       },
@@ -208,7 +207,72 @@ Besides that, you can also chat with users and do some calculations if needed.`
     },
     functions: {
       listBooks: {
-        description: 'List books based on a query.',
+        description: 'Suggest a list of books to the user.',
+        parameters: z.object({
+          topic: z.string().describe('The topic for suggestions'),
+          books: z
+            .array(
+              z.object({
+                title: z.string().describe('The title of the book'),
+                author: z.string().describe('The author of the book')
+              })
+            )
+            .max(3)
+            .min(3)
+        }),
+        render: async function* ({ books, topic }) {
+          yield (
+            <BotCard>
+              <StocksSkeleton />
+            </BotCard>
+          )
+          console.log(books)
+
+          const booksMetadata = await fetchMultipleBooksByTitleAuthor({ books })
+
+          if (booksMetadata === null) {
+            console.log(booksMetadata)
+            return <div>Fetching Error</div>
+          }
+          console.log(booksMetadata)
+
+          // Remove description from metadata to save in AI state
+          const bookMetadataReduced = booksMetadata
+            .map(book => {
+              if (book) {
+                const { description, ...rest } = book
+                return rest
+              }
+            })
+            .filter(meta => meta != undefined) as BookMetadataReduced[]
+
+          aiState.done({
+            ...aiState.get(),
+            messages: [
+              ...aiState.get().messages,
+              {
+                id: nanoid(),
+                role: 'function',
+                name: 'listBooks',
+                content: JSON.stringify({ books, topic })
+              }
+            ]
+          })
+
+          return (
+            <BotCard>
+              <div>
+                <Books props={booksMetadata} />
+                <div className="p-4 text-center text-sm text-zinc-500">
+                  {`Showing AI suggestions for ${topic}`}
+                </div>
+              </div>
+            </BotCard>
+          )
+        }
+      },
+      findBooksByKeywords: {
+        description: 'List books based on a query used for keyword match.',
         parameters: z.object({
           query: z.string().describe('Query to find the books')
         }),
@@ -219,7 +283,7 @@ Besides that, you can also chat with users and do some calculations if needed.`
             </BotCard>
           )
 
-          const booksMetadata = await fetchBooksWithQuery(query)
+          const booksMetadata = await fetchVolumesByQuery({ query })
 
           if (booksMetadata === null) {
             return <div>Fetching Error</div>
@@ -243,7 +307,7 @@ Besides that, you can also chat with users and do some calculations if needed.`
               {
                 id: nanoid(),
                 role: 'function',
-                name: 'listBooks',
+                name: 'findBooksByKeywords',
                 content: JSON.stringify(bookMetadataReduced)
               }
             ]
@@ -251,7 +315,12 @@ Besides that, you can also chat with users and do some calculations if needed.`
 
           return (
             <BotCard>
-              <Books props={booksMetadata} />
+              <div>
+                <Books props={booksMetadata} />
+                <div className="p-4 text-center text-sm text-zinc-500">
+                  {`Showing results for: ${query}`}
+                </div>
+              </div>
             </BotCard>
           )
         }
@@ -268,14 +337,7 @@ Besides that, you can also chat with users and do some calculations if needed.`
             </BotCard>
           )
 
-          const bookVolume = await fetchVolumeByID(bookId)
-
-          if (bookVolume === null) {
-            return <div>ID Fetching Error</div>
-          }
-          console.log(bookVolume)
-
-          const bookMetadata = volumeToMetadata(bookVolume)
+          const bookMetadata = await fetchVolumeByID(bookId)
 
           if (bookMetadata === null) {
             return <div>content Error</div>
@@ -288,7 +350,7 @@ Besides that, you can also chat with users and do some calculations if needed.`
               {
                 id: nanoid(),
                 role: 'function',
-                name: 'listBooks',
+                name: 'viewBookByID',
                 content: JSON.stringify(bookMetadata)
               }
             ]
@@ -303,47 +365,6 @@ Besides that, you can also chat with users and do some calculations if needed.`
                 orientation={'portrait'}
                 variant="big"
               />
-            </BotCard>
-          )
-        }
-      },
-      listStocks: {
-        description: 'List three imaginary stocks that are trending.',
-        parameters: z.object({
-          stocks: z.array(
-            z.object({
-              symbol: z.string().describe('The symbol of the stock'),
-              price: z.number().describe('The price of the stock'),
-              delta: z.number().describe('The change in price of the stock')
-            })
-          )
-        }),
-        render: async function* ({ stocks }) {
-          yield (
-            <BotCard>
-              <StocksSkeleton />
-            </BotCard>
-          )
-
-          // API Call
-          await sleep(1000)
-
-          aiState.done({
-            ...aiState.get(),
-            messages: [
-              ...aiState.get().messages,
-              {
-                id: nanoid(),
-                role: 'function',
-                name: 'listStocks',
-                content: JSON.stringify(stocks)
-              }
-            ]
-          })
-
-          return (
-            <BotCard>
-              <Stocks props={stocks} />
             </BotCard>
           )
         }

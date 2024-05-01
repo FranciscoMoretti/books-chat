@@ -1,5 +1,6 @@
 'use server'
 
+import { Metadata } from 'next'
 import { volumeToMetadata } from './volumeToMetadata'
 
 const apiVolumesURL = 'https://www.googleapis.com/books/v1/volumes'
@@ -42,58 +43,26 @@ type GoogleBooksVolumeListResponse = {
   items?: GoogleBooksVolume[]
 }
 
-export async function fetchSearchMultiBookMetadata(
-  titleAuthors: { title: string; author: string }[]
-): Promise<(BookMetadata | null)[]> {
-  const promises = titleAuthors.map(
+export async function fetchMultipleBooksByTitleAuthor({
+  books
+}: {
+  books: { title: string; author: string }[]
+}): Promise<BookMetadata[]> {
+  const promises = books.map(
     async titleAuthor =>
-      await fetchSearchBookMetadata(titleAuthor.title, titleAuthor.author)
+      await fetchVolumesByQuery({
+        query: `${titleAuthor.title} by ${titleAuthor.author}`,
+        maxResults: 1
+      })
   )
-  return await Promise.all(promises)
-}
-
-export async function fetchSearchBookMetadata(
-  title: string,
-  author: string
-): Promise<BookMetadata | null> {
-  const query = `${title} by ${author}`
-  const url = `${apiVolumesURL}?q=${query}&key=${process.env.GOOGLE_BOOKS_API_KEY}`
-
-  return fetch(url)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok')
-      }
-      return response.json() as Promise<GoogleBooksVolumeListResponse>
-    })
-    .then(data => {
-      const items = data.items ?? []
-
-      if (items.length > 0 && items[0]) {
-        for (const item of items) {
-          const metadata = volumeToMetadata(item)
-          if (metadata) {
-            return metadata
-          }
-        }
-        console.error(
-          `No book api item had all the metadata for: ${title} author: ${author}`
-        )
-        return null
-      } else {
-        console.error(`Book not found: ${title} author: ${author}`)
-        return null
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error)
-      return null
-    })
+  return (
+    (await Promise.all(promises)).filter(Boolean) as BookMetadata[][]
+  ).map(arr => arr[0])
 }
 
 export async function fetchVolumeByID(
   bookID: string
-): Promise<GoogleBooksVolume | null> {
+): Promise<BookMetadata | null> {
   const url = `${apiVolumeIdURL}${bookID}?key=${process.env.GOOGLE_BOOKS_API_KEY}`
 
   console.log(url)
@@ -105,17 +74,21 @@ export async function fetchVolumeByID(
       }
       return response.json() as Promise<GoogleBooksVolume>
     })
+    .then(res => volumeToMetadata(res))
     .catch(error => {
       console.error('Error:', error)
       return null
     })
 }
 
-export async function fetchBooksWithQuery(
-  query: string,
-  maxResults: number = 3
-): Promise<BookMetadata[] | null> {
-  const url = `${apiVolumesURL}?q=${query}&maxResults=${maxResults}&key=${process.env.GOOGLE_BOOKS_API_KEY}`
+export async function fetchVolumesByQuery({
+  query,
+  maxResults = 3
+}: {
+  query: string
+  maxResults?: number
+}): Promise<BookMetadata[] | null> {
+  const url = `${apiVolumesURL}?q=${query}&maxResults=${maxResults}&orderBy=relevance&printType=books&langRestrict=en&key=${process.env.GOOGLE_BOOKS_API_KEY}`
 
   return fetch(url)
     .then(response => {
