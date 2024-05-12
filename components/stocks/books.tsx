@@ -35,8 +35,8 @@ export function Books({ props: books }: { props: BookMetadata[] }) {
         >
           <BookCard
             props={book}
-            height={600}
-            width={400}
+            height={400}
+            width={300}
             orientation="portrait"
             variant="small"
           />

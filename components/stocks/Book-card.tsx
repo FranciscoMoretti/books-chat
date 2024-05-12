@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { CardContent, Card } from '@/components/ui/card'
 import { changeZoomValue } from '@/lib/book/volumeToMetadata'
 import { cn } from '@/lib/utils'
+import { BookDescription } from './book-description'
 
 export function BookCard({
   props: book,
@@ -26,13 +27,12 @@ export function BookCard({
         width={width}
         height={height}
         className={cn(
-          'm-auto size-auto object-cover',
-          orientation === 'portrait'
-            ? 'aspect-[3/4] h-full'
-            : 'aspect-square h-full'
+          'm-auto object-cover',
+          orientation === 'portrait' ? 'aspect-[3/4] ' : 'aspect-square'
         )}
         style={{
-          objectFit: 'contain'
+          objectFit: 'contain',
+          height: height
         }}
       />
 
@@ -63,11 +63,9 @@ export function BookCard({
             {book.publishedDate}
           </p>
         </div>
+        {/* // TODO: Text is long, Make it collapsable. Collapsed by default */}
         {variant === 'big' && (
-          <p
-            className="text-gray-500 dark:text-gray-400 prose py-4"
-            dangerouslySetInnerHTML={{ __html: book.description }}
-          ></p>
+          <BookDescription descriptionHtml={book.description} />
         )}
       </CardContent>
     </Card>

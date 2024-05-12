@@ -1,0 +1,109 @@
+{
+    "kind": "books#volume",
+    "id": "QQ6vDwAAQBAJ",
+    "etag": "K2ZITuEj5yI",
+    "selfLink": "https://content-books.googleapis.com/books/v1/volumes/QQ6vDwAAQBAJ",
+    "volumeInfo": {
+      "title": "Clean Agile",
+      "subtitle": "Back to Basics",
+      "authors": [
+        "Robert C. Martin"
+      ],
+      "publisher": "Prentice Hall",
+      "publishedDate": "2019-09-12",
+      "description": "\u003cb\u003eAgile Values and Principles for a New Generation\u003c/b\u003e \u003cbr\u003e “In the journey to all things Agile, Uncle Bob has been there, done that, and has the both the t-shirt and the scars to show for it. This delightful book is part history, part personal stories, and all wisdom. If you want to understand what Agile is and how it came to be, this is the book for you.” \u003cbr\u003e \u003ci\u003e–Grady Booch\u003c/i\u003e \u003ci\u003e\u003cbr\u003e\u003c/i\u003e “Bob’s frustration colors every sentence of \u003ci\u003eClean Agile,\u003c/i\u003e but it’s a justified frustration. What is in the world of Agile development is nothing compared to what could be. This book is Bob’s perspective on what to focus on to get to that ‘what could be.’ And he’s been there, so it’s worth listening.” \u003cbr\u003e \u003ci\u003e–Kent Beck\u003c/i\u003e \u003cbr\u003e “It’s good to read Uncle Bob’s take on Agile. Whether just beginning, or a seasoned Agilista, you would do well to read this book. I agree with almost all of it. It’s just some of the parts make me realize my own shortcomings, dammit. It made me double-check our code coverage (85.09%).” \u003cbr\u003e \u003ci\u003e–Jon Kern\u003c/i\u003e Nearly twenty years after the Agile Manifesto was first presented, the legendary Robert C. Martin (“Uncle Bob”) reintroduces Agile values and principles for a new generation–programmers and nonprogrammers alike. Martin, author of \u003ci\u003eClean Code\u003c/i\u003e and other highly influential software development guides, was there at Agile’s founding. Now, in \u003ci\u003e\u003cb\u003eClean Agile: Back to Basics,\u003c/b\u003e\u003c/i\u003e he strips away misunderstandings and distractions that over the years have made it harder to use Agile than was originally intended. \u003cbr\u003e Martin describes what Agile is in no uncertain terms: a small discipline that helps small teams manage small projects . . . with huge implications because every big project is comprised of many small projects. Drawing on his fifty years’ experience with projects of every conceivable type, he shows how Agile can help you bring true professionalism to software development. \u003cbr\u003e \u003cul\u003e \u003cli\u003eGet back to the basics–what Agile is, was, and should always be\u003c/li\u003e \u003cli\u003eUnderstand the origins, and proper practice, of SCRUM\u003c/li\u003e \u003cli\u003eMaster essential business-facing Agile practices, from small releases and acceptance tests to whole-team communication\u003c/li\u003e \u003cli\u003eExplore Agile team members’ relationships with each other, and with their product\u003c/li\u003e \u003cli\u003eRediscover indispensable Agile technical practices: TDD, refactoring, simple design, and pair programming\u003c/li\u003e \u003cli\u003eUnderstand the central roles values and craftsmanship play in your Agile team’s success\u003c/li\u003e \u003c/ul\u003eIf you want Agile’s true benefits, there are no shortcuts: You need to do Agile right. \u003ci\u003e\u003cb\u003eClean Agile: Back to Basics\u003c/b\u003e\u003c/i\u003e will show you how, whether you’re a developer, tester, manager, project manager, or customer. \u003cbr\u003e \u003cbr\u003e \u003ci\u003eRegister your book for convenient access to downloads, updates, and/or corrections as they become available. See inside book for details.\u003c/i\u003e",
+      "industryIdentifiers": [
+        {
+          "type": "ISBN_10",
+          "identifier": "013578199X"
+        },
+        {
+          "type": "ISBN_13",
+          "identifier": "9780135781999"
+        }
+      ],
+      "readingModes": {
+        "text": true,
+        "image": false
+      },
+      "pageCount": 240,
+      "printedPageCount": 341,
+      "printType": "BOOK",
+      "categories": [
+        "Computers / Software Development & Engineering / General",
+        "Computers / Software Development & Engineering / Quality Assurance & Testing"
+      ],
+      "maturityRating": "NOT_MATURE",
+      "allowAnonLogging": true,
+      "contentVersion": "1.6.5.0.preview.2",
+      "panelizationSummary": {
+        "containsEpubBubbles": false,
+        "containsImageBubbles": false
+      },
+      "imageLinks": {
+        "smallThumbnail": "http://books.google.com/books/publisher/content?id=QQ6vDwAAQBAJ&printsec=frontcover&img=1&zoom=5&imgtk=AFLRE73K0imRdW22F_nrgm8P95abqPgLN74lkmoatUPlrNJNWOk7ztjae4pduEDX8QFewExt_l91YyLwibGogQV446lx7o-__iF44gDVdrzSWXB13N0DUiI&source=gbs_api",
+        "thumbnail": "http://books.google.com/books/publisher/content?id=QQ6vDwAAQBAJ&printsec=frontcover&img=1&zoom=1&imgtk=AFLRE72LSzM03zGBwyzIkj8IlbNN0FuI-f0x8GSES2J9wDmoAHzTv6ZXrop00KSEwvnidf5e_ZT5y258E2E0KnsRUkjq0zo_ocgk2v1LTW2o3Unh9PGU5bY&source=gbs_api",
+        "small": "http://books.google.com/books/publisher/content?id=QQ6vDwAAQBAJ&printsec=frontcover&img=1&zoom=2&imgtk=AFLRE73Pbnzqrp3unwzfu1I3tzZhw8dpRAKcXzfTohkWgw0prr-_i9C720yXDANxMgEUhm31oe4pPVgkeageHU8MlbZfTWeGn9cEtt50xwpRqcz-6ej1s1E&source=gbs_api",
+        "medium": "http://books.google.com/books/publisher/content?id=QQ6vDwAAQBAJ&printsec=frontcover&img=1&zoom=3&imgtk=AFLRE72FtDPjo1mdd3Bs9Yj1UyKunMeOdFirETOUl7aJog0ehzZDpnOPct6_6IQTw5gnaK9C6a-xUFE42TttcODxWjbEJux0ufLYRJhBUlx3RdCxKtpHu0M&source=gbs_api",
+        "large": "http://books.google.com/books/publisher/content?id=QQ6vDwAAQBAJ&printsec=frontcover&img=1&zoom=4&imgtk=AFLRE70RNMR8GF_uONrzFbYrjudqcxKzQE-F6Lp6XJsb_6cdchCqbt7pEQdzmyU4yFG8dCUbG0nEUHJU9LknFIoiD6qB7cmClKkj0iPWJyrcOjORhSMilG0&source=gbs_api",
+        "extraLarge": "http://books.google.com/books/publisher/content?id=QQ6vDwAAQBAJ&printsec=frontcover&img=1&zoom=6&imgtk=AFLRE70MDfPq4vrWOGIA-nI8FkEaFDUjDPJccQ6cORzeb7PzVSbgLlTVeEWYKZwIT6TKrN9Td7P795MFLYRH_yOBMhPmsXLxvXykVRPrOCRrm3_Iz5zHrNQ&source=gbs_api"
+      },
+      "language": "en",
+      "previewLink": "http://books.google.co.uk/books?id=QQ6vDwAAQBAJ&hl=&source=gbs_api",
+      "infoLink": "https://play.google.com/store/books/details?id=QQ6vDwAAQBAJ&source=gbs_api",
+      "canonicalVolumeLink": "https://play.google.com/store/books/details?id=QQ6vDwAAQBAJ"
+    },
+    "layerInfo": {
+      "layers": [
+        {
+          "layerId": "geo",
+          "volumeAnnotationsVersion": "8"
+        }
+      ]
+    },
+    "saleInfo": {
+      "country": "GB",
+      "saleability": "FOR_SALE",
+      "isEbook": true,
+      "listPrice": {
+        "amount": 22.99,
+        "currencyCode": "GBP"
+      },
+      "retailPrice": {
+        "amount": 15.24,
+        "currencyCode": "GBP"
+      },
+      "buyLink": "https://play.google.com/store/books/details?id=QQ6vDwAAQBAJ&rdid=book-QQ6vDwAAQBAJ&rdot=1&source=gbs_api",
+      "offers": [
+        {
+          "finskyOfferType": 1,
+          "listPrice": {
+            "amountInMicros": 22990000,
+            "currencyCode": "GBP"
+          },
+          "retailPrice": {
+            "amountInMicros": 15240000,
+            "currencyCode": "GBP"
+          },
+          "giftable": true
+        }
+      ]
+    },
+    "accessInfo": {
+      "country": "GB",
+      "viewability": "NO_PAGES",
+      "embeddable": false,
+      "publicDomain": false,
+      "textToSpeechPermission": "ALLOWED_FOR_ACCESSIBILITY",
+      "epub": {
+        "isAvailable": true
+      },
+      "pdf": {
+        "isAvailable": true
+      },
+      "webReaderLink": "http://play.google.com/books/reader?id=QQ6vDwAAQBAJ&hl=&source=gbs_api",
+      "accessViewStatus": "NONE",
+      "quoteSharingAllowed": false
+    }
+  }
+  

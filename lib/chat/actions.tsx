@@ -150,8 +150,8 @@ async function selectBook(bookMetadata: BookMetadata) {
       <BotCard>
         <BookCard
           props={bookMetadata}
-          width={700}
-          height={1200}
+          width={400}
+          height={600}
           orientation={'portrait'}
           variant="big"
         />
