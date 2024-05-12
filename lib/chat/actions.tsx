@@ -131,6 +131,63 @@ async function confirmPurchase(symbol: string, price: number, amount: number) {
   }
 }
 
+async function selectBook(bookMetadata: BookMetadata) {
+  'use server'
+
+  const aiState = getMutableAIState<typeof AI>()
+
+  const systemMessage = createStreamableUI(null)
+  const bookMessage = createStreamableUI(null)
+
+  runAsyncFnWithoutBlocking(async () => {
+    systemMessage.done(
+      <SystemMessage>
+        You have selected {bookMetadata.title} by {bookMetadata.author}.
+      </SystemMessage>
+    )
+
+    bookMessage.done(
+      <BotCard>
+        <BookCard
+          props={bookMetadata}
+          width={700}
+          height={1200}
+          orientation={'portrait'}
+          variant="big"
+        />
+      </BotCard>
+    )
+
+    aiState.done({
+      ...aiState.get(),
+      messages: [
+        ...aiState.get().messages.slice(),
+        {
+          id: nanoid(),
+          role: 'system',
+          content: `[User has selected ${bookMetadata.title} by ${bookMetadata.author} with id ${bookMetadata.id} ]`
+        },
+        {
+          id: nanoid(),
+          role: 'assistant',
+          content: `[Shows details about ${bookMetadata.title} by ${bookMetadata.author} with id ${bookMetadata.id} ]`
+        }
+      ]
+    })
+  })
+
+  return {
+    newMessage: {
+      id: nanoid(),
+      display: systemMessage.value
+    },
+    bookMessage: {
+      id: nanoid(),
+      display: bookMessage.value
+    }
+  }
+}
+
 async function submitUserMessage(content: string) {
   'use server'
 
@@ -546,7 +603,8 @@ export type UIState = {
 export const AI = createAI<AIState, UIState>({
   actions: {
     submitUserMessage,
-    confirmPurchase
+    confirmPurchase,
+    selectBook
   },
   initialUIState: [],
   initialAIState: { chatId: nanoid(), messages: [] },
