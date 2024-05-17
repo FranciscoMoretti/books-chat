@@ -4,7 +4,6 @@ import {
   createAI,
   createStreamableUI,
   getMutableAIState,
-  getAIState,
   render,
   createStreamableValue
 } from 'ai/rsc'
@@ -14,37 +13,26 @@ import {
   spinner,
   BotCard,
   BotMessage,
-  SystemMessage,
-  Stock,
-  Purchase
+  SystemMessage
 } from '@/components/stocks'
 
 import { z } from 'zod'
-import { EventsSkeleton } from '@/components/stocks/events-skeleton'
-import { Events } from '@/components/stocks/events'
-import { StocksSkeleton } from '@/components/stocks/stocks-skeleton'
-import { Stocks } from '@/components/stocks/stocks'
 import { Books } from '@/components/stocks/books'
 import { BookCard } from '@/components/stocks/Book-card'
-import { StockSkeleton } from '@/components/stocks/stock-skeleton'
 import {
   formatNumber,
   runAsyncFnWithoutBlocking,
   sleep,
   nanoid
 } from '@/lib/utils'
-import { saveChat } from '@/app/actions'
-import { SpinnerMessage, UserMessage } from '@/components/stocks/message'
-import { Chat } from '@/lib/types'
-import { auth } from '@/auth'
+import { SpinnerMessage } from '@/components/stocks/message'
 import {
   BookMetadata,
   BookMetadataReduced,
   fetchVolumesByQuery,
-  fetchMultipleBooksByTitleAuthor,
-  fetchVolumeByID
+  fetchMultipleBooksByTitleAuthor
 } from '../book/books-api'
-import { volumeToMetadata } from '../book/volumeToMetadata'
+import { BooksSkeleton } from '@/components/stocks/books-skeleton'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || ''
@@ -281,7 +269,7 @@ Besides that, you can also chat with users and share info about the books if nee
         render: async function* ({ books, topic }) {
           yield (
             <BotCard>
-              <StocksSkeleton />
+              <BooksSkeleton />
             </BotCard>
           )
 
@@ -327,7 +315,7 @@ Besides that, you can also chat with users and share info about the books if nee
         render: async function* ({ query }) {
           yield (
             <BotCard>
-              <StocksSkeleton />
+              <BooksSkeleton />
             </BotCard>
           )
 
@@ -405,80 +393,5 @@ export const AI = createAI<AIState, UIState>({
     selectBook
   },
   initialUIState: [],
-  initialAIState: { chatId: nanoid(), messages: [] },
-  unstable_onGetUIState: async () => {
-    'use server'
-
-    const session = await auth()
-
-    if (session && session.user) {
-      const aiState = getAIState()
-
-      if (aiState) {
-        const uiState = getUIStateFromAIState(aiState)
-        return uiState
-      }
-    } else {
-      return
-    }
-  },
-  unstable_onSetAIState: async ({ state, done }) => {
-    'use server'
-
-    const session = await auth()
-
-    if (session && session.user) {
-      const { chatId, messages } = state
-
-      const createdAt = new Date()
-      const userId = session.user.id as string
-      const path = `/chat/${chatId}`
-      const title = messages[0].content.substring(0, 100)
-
-      const chat: Chat = {
-        id: chatId,
-        title,
-        userId,
-        createdAt,
-        messages,
-        path
-      }
-
-      await saveChat(chat)
-    } else {
-      return
-    }
-  }
+  initialAIState: { chatId: nanoid(), messages: [] }
 })
-
-export const getUIStateFromAIState = (aiState: Chat) => {
-  return aiState.messages
-    .filter(message => message.role !== 'system')
-    .map((message, index) => ({
-      id: `${aiState.chatId}-${index}`,
-      display:
-        message.role === 'function' ? (
-          message.name === 'listStocks' ? (
-            <BotCard>
-              <Stocks props={JSON.parse(message.content)} />
-            </BotCard>
-          ) : message.name === 'showStockPrice' ? (
-            <BotCard>
-              <Stock props={JSON.parse(message.content)} />
-            </BotCard>
-          ) : message.name === 'showStockPurchase' ? (
-            <BotCard>
-              <Purchase props={JSON.parse(message.content)} />
-            </BotCard>
-          ) : message.name === 'getEvents' ? (
-            <BotCard>
-              <Events props={JSON.parse(message.content)} />
-            </BotCard>
-          ) : null
-        ) : message.role === 'user' ? (
-          <UserMessage>{message.content}</UserMessage>
-        ) : (
-          <BotMessage content={message.content} />
-        )
-    }))
-}

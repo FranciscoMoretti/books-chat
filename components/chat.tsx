@@ -22,20 +22,11 @@ export interface ChatProps extends React.ComponentProps<'div'> {
 
 export function Chat({ id, className, session, missingKeys }: ChatProps) {
   const router = useRouter()
-  const path = usePathname()
   const [input, setInput] = useState('')
   const [messages] = useUIState()
   const [aiState] = useAIState()
 
   const [_, setNewChatId] = useLocalStorage('newChatId', id)
-
-  useEffect(() => {
-    if (session?.user) {
-      if (!path.includes('chat') && messages.length === 1) {
-        window.history.replaceState({}, '', `/chat/${id}`)
-      }
-    }
-  }, [id, path, session?.user, messages])
 
   useEffect(() => {
     const messagesLength = aiState.messages?.length
