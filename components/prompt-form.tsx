@@ -66,7 +66,7 @@ export function PromptForm({
         setMessages(currentMessages => [...currentMessages, responseMessage])
       }}
     >
-      <div className="relative flex max-h-60 w-full grow flex-col overflow-hidden bg-background px-8 sm:rounded-md sm:border sm:px-4">
+      <div className="relative flex max-h-60 w-full grow flex-col overflow-hidden bg-background px-8 sm:rounded-md sm:border sm:pl-4 sm:pr-12">
         <Textarea
           ref={inputRef}
           tabIndex={0}
