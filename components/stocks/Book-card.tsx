@@ -8,6 +8,7 @@ import Image from 'next/image'
 import { CardContent, Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { BookDescription } from './book-description'
+import { RatingCount } from './rating-count'
 
 export function BookCard({
   props: book,
@@ -49,6 +50,7 @@ export function BookCard({
         >
           {book.title}
         </h3>
+        {book.averageRating && <RatingCount rating={book.averageRating} />}
         <div
           className={cn(
             'flex gap-2',

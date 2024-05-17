@@ -12,6 +12,7 @@ export type BookMetadata = {
   author: string
   description: string
   publishedDate: string
+  averageRating: number
   image: string
 }
 
@@ -28,6 +29,7 @@ export type VolumeInfo = {
   authors: string[]
   description: string
   publishedDate: string
+  averageRating: number
   previewLink: string
   imageLinks?: {
     thumbnail: string

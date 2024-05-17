@@ -13,6 +13,7 @@ export function volumeToMetadata(item: {
     author: item.volumeInfo.authors.join(', '),
     description: item.volumeInfo.description,
     publishedDate: item.volumeInfo.publishedDate,
+    averageRating: item.volumeInfo.averageRating,
     image: item.volumeInfo.imageLinks.thumbnail.replace('http://', 'https://')
   }
 }
