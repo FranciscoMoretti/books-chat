@@ -50,6 +50,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || ''
 })
 
+// TODO Create a function that finds a book based on chatgpt list of books
 async function confirmPurchase(symbol: string, price: number, amount: number) {
   'use server'
 
@@ -223,7 +224,7 @@ Messages inside [] means that it's a UI element or a user event. For example:
 - "[Price of AAPL = 100]" means that an interface of the stock price of AAPL is shown to the user.
 - "[User has changed the amount of AAPL to 10]" means that the user has changed the amount of AAPL to 10 in the UI.
 
-If the user wants a search with keyword match, call \`findBooksByKeywords\` to show a list of books.
+If the user wants a search with keyword match, call \`searchBooksByKeywords\` to show a list of books.
 If the user wants books on a topic, call \`listBooks\` to show a list of books.
 If the user wants to sse book details by its id, call \`viewBookByID\`.
 
@@ -283,7 +284,6 @@ Besides that, you can also chat with users and do some calculations if needed.`
               <StocksSkeleton />
             </BotCard>
           )
-          console.log(books)
 
           const booksMetadata = await fetchMultipleBooksByTitleAuthor({ books })
 
@@ -291,17 +291,6 @@ Besides that, you can also chat with users and do some calculations if needed.`
             console.log(booksMetadata)
             return <div>Fetching Error</div>
           }
-          console.log(booksMetadata)
-
-          // Remove description from metadata to save in AI state
-          const bookMetadataReduced = booksMetadata
-            .map(book => {
-              if (book) {
-                const { description, ...rest } = book
-                return rest
-              }
-            })
-            .filter(meta => meta != undefined) as BookMetadataReduced[]
 
           aiState.done({
             ...aiState.get(),
@@ -328,10 +317,12 @@ Besides that, you can also chat with users and do some calculations if needed.`
           )
         }
       },
-      findBooksByKeywords: {
-        description: 'List books based on a query used for keyword match.',
+      // TODO: Show a ui state that indicates books are being searched
+      searchBooksByKeywords: {
+        description:
+          'Search books on google books based on a query. Build the query with google advanced search operators.',
         parameters: z.object({
-          query: z.string().describe('Query to find the books')
+          query: z.string().describe('Query to search for the books')
         }),
         render: async function* ({ query }) {
           yield (
@@ -345,7 +336,6 @@ Besides that, you can also chat with users and do some calculations if needed.`
           if (booksMetadata === null) {
             return <div>Fetching Error</div>
           }
-          console.log(booksMetadata)
 
           // Remove description from metadata to save in AI state
           const bookMetadataReduced = booksMetadata
@@ -364,7 +354,7 @@ Besides that, you can also chat with users and do some calculations if needed.`
               {
                 id: nanoid(),
                 role: 'function',
-                name: 'findBooksByKeywords',
+                name: 'searchBooksByKeywords',
                 content: JSON.stringify(bookMetadataReduced)
               }
             ]
