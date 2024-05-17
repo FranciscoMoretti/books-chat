@@ -33,6 +33,8 @@ import {
   fetchMultipleBooksByTitleAuthor
 } from '../book/books-api'
 import { BooksSkeleton } from '@/components/stocks/books-skeleton'
+import { headers } from 'next/headers'
+import { messageRateLimit } from '../rate-limit'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || ''
@@ -179,6 +181,14 @@ async function selectBook(bookMetadata: BookMetadata) {
 
 async function submitUserMessage(content: string) {
   'use server'
+
+  const ip = headers().get('x-real-ip') ?? 'local'
+  const rl = await messageRateLimit.limit(ip)
+
+  if (!rl.success) {
+    // TODO: Handle returning errors through chat or toast
+    return null
+  }
 
   const aiState = getMutableAIState<typeof AI>()
 

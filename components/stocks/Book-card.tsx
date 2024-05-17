@@ -50,7 +50,7 @@ export function BookCard({
         >
           {book.title}
         </h3>
-        {book.averageRating && <RatingCount rating={book.averageRating} />}
+        <RatingCount rating={book.averageRating ?? '-'} />
         <div
           className={cn(
             'flex gap-2',
