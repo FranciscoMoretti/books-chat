@@ -217,20 +217,20 @@ async function submitUserMessage(content: string) {
       {
         role: 'system',
         content: `\
-You are a book suggestion conversation bot and you can help users find books, step by step.
-You and the user can discuss books and the user can ask you to suggest or find books, in the UI.
+You are a book suggestion conversation bot and you can help users find books, and learn about them.
+You and the user can discuss books and the user can ask you to suggest or search books, in the UI.
 
 Messages inside [] means that it's a UI element or a user event. For example:
-- "[Price of AAPL = 100]" means that an interface of the stock price of AAPL is shown to the user.
-- "[User has changed the amount of AAPL to 10]" means that the user has changed the amount of AAPL to 10 in the UI.
+- "[User has selected Clean Code by Robert C. Martin]" means that the user has selected Clean Code book by the author
+   Robert C. Martin in the UI.
 
-If the user wants a search with keyword match, call \`searchBooksByKeywords\` to show a list of books.
-If the user wants books on a topic, call \`listBooks\` to show a list of books.
-If the user wants to sse book details by its id, call \`viewBookByID\`.
+If the user wants a search or the user message can be transformed to a search query, call \`searchBooksByKeywords\`
+  to show a list of books.
+If the user wants books on a topic, category or a recommendation, call \`suggestBooks\` to show a list of books.
 
 If the user wants to buy a book, or complete another impossible task, respond that you are a demo and cannot do that.
 
-Besides that, you can also chat with users and do some calculations if needed.`
+Besides that, you can also chat with users and share info about the books if needed.`
       },
       ...aiState.get().messages.map((message: any) => ({
         role: message.role,
@@ -264,8 +264,8 @@ Besides that, you can also chat with users and do some calculations if needed.`
       return textNode
     },
     functions: {
-      listBooks: {
-        description: 'Suggest a list of books to the user.',
+      suggestBooks: {
+        description: 'Suggest a list of books.',
         parameters: z.object({
           topic: z.string().describe('The topic for suggestions'),
           books: z
@@ -299,7 +299,7 @@ Besides that, you can also chat with users and do some calculations if needed.`
               {
                 id: nanoid(),
                 role: 'function',
-                name: 'listBooks',
+                name: 'suggestBooks',
                 content: JSON.stringify({ books, topic })
               }
             ]
@@ -365,201 +365,9 @@ Besides that, you can also chat with users and do some calculations if needed.`
               <div>
                 <Books props={booksMetadata} />
                 <div className="p-4 text-center text-sm text-zinc-500">
-                  {`Showing results for: ${query}`}
+                  {`Showing search results for: ${query}`}
                 </div>
               </div>
-            </BotCard>
-          )
-        }
-      },
-      viewBookByID: {
-        description: 'Show details about a book by ID.',
-        parameters: z.object({
-          bookId: z.string().describe('The book ID')
-        }),
-        render: async function* ({ bookId }) {
-          yield (
-            <BotCard>
-              <StocksSkeleton />
-            </BotCard>
-          )
-
-          const bookMetadata = await fetchVolumeByID(bookId)
-
-          if (bookMetadata === null) {
-            return <div>content Error</div>
-          }
-
-          aiState.done({
-            ...aiState.get(),
-            messages: [
-              ...aiState.get().messages,
-              {
-                id: nanoid(),
-                role: 'function',
-                name: 'viewBookByID',
-                content: JSON.stringify(bookMetadata)
-              }
-            ]
-          })
-
-          return (
-            <BotCard>
-              <BookCard
-                props={bookMetadata}
-                width={700}
-                height={1200}
-                orientation={'portrait'}
-                variant="big"
-              />
-            </BotCard>
-          )
-        }
-      },
-      showStockPrice: {
-        description:
-          'Get the current stock price of a given stock or currency. Use this to show the price to the user.',
-        parameters: z.object({
-          symbol: z
-            .string()
-            .describe(
-              'The name or symbol of the stock or currency. e.g. DOGE/AAPL/USD.'
-            ),
-          price: z.number().describe('The price of the stock.'),
-          delta: z.number().describe('The change in price of the stock')
-        }),
-        render: async function* ({ symbol, price, delta }) {
-          yield (
-            <BotCard>
-              <StockSkeleton />
-            </BotCard>
-          )
-
-          await sleep(1000)
-
-          aiState.done({
-            ...aiState.get(),
-            messages: [
-              ...aiState.get().messages,
-              {
-                id: nanoid(),
-                role: 'function',
-                name: 'showStockPrice',
-                content: JSON.stringify({ symbol, price, delta })
-              }
-            ]
-          })
-
-          return (
-            <BotCard>
-              <Stock props={{ symbol, price, delta }} />
-            </BotCard>
-          )
-        }
-      },
-      showStockPurchase: {
-        description:
-          'Show price and the UI to purchase a stock or currency. Use this if the user wants to purchase a stock or currency.',
-        parameters: z.object({
-          symbol: z
-            .string()
-            .describe(
-              'The name or symbol of the stock or currency. e.g. DOGE/AAPL/USD.'
-            ),
-          price: z.number().describe('The price of the stock.'),
-          numberOfShares: z
-            .number()
-            .describe(
-              'The **number of shares** for a stock or currency to purchase. Can be optional if the user did not specify it.'
-            )
-        }),
-        render: async function* ({ symbol, price, numberOfShares = 100 }) {
-          if (numberOfShares <= 0 || numberOfShares > 1000) {
-            aiState.done({
-              ...aiState.get(),
-              messages: [
-                ...aiState.get().messages,
-                {
-                  id: nanoid(),
-                  role: 'system',
-                  content: `[User has selected an invalid amount]`
-                }
-              ]
-            })
-
-            return <BotMessage content={'Invalid amount'} />
-          }
-
-          aiState.done({
-            ...aiState.get(),
-            messages: [
-              ...aiState.get().messages,
-              {
-                id: nanoid(),
-                role: 'function',
-                name: 'showStockPurchase',
-                content: JSON.stringify({
-                  symbol,
-                  price,
-                  numberOfShares
-                })
-              }
-            ]
-          })
-
-          return (
-            <BotCard>
-              <Purchase
-                props={{
-                  numberOfShares,
-                  symbol,
-                  price: +price,
-                  status: 'requires_action'
-                }}
-              />
-            </BotCard>
-          )
-        }
-      },
-      getEvents: {
-        description:
-          'List funny imaginary events between user highlighted dates that describe stock activity.',
-        parameters: z.object({
-          events: z.array(
-            z.object({
-              date: z
-                .string()
-                .describe('The date of the event, in ISO-8601 format'),
-              headline: z.string().describe('The headline of the event'),
-              description: z.string().describe('The description of the event')
-            })
-          )
-        }),
-        render: async function* ({ events }) {
-          yield (
-            <BotCard>
-              <EventsSkeleton />
-            </BotCard>
-          )
-
-          await sleep(1000)
-
-          aiState.done({
-            ...aiState.get(),
-            messages: [
-              ...aiState.get().messages,
-              {
-                id: nanoid(),
-                role: 'function',
-                name: 'getEvents',
-                content: JSON.stringify(events)
-              }
-            ]
-          })
-
-          return (
-            <BotCard>
-              <Events props={events} />
             </BotCard>
           )
         }
