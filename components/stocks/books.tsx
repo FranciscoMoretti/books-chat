@@ -17,7 +17,7 @@ export function Books({ props: books }: { props: BookMetadata[] }) {
   const { selectBook } = useActions()
 
   return (
-    <div className="mb-4 grid grid-cols-3 gap-2 pb-4 text-sm sm:flex-row">
+    <div className="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-2 pb-4 text-sm">
       {books.map(book => (
         <button
           key={book.id}
