@@ -17,11 +17,11 @@ export function Books({ props: books }: { props: BookMetadata[] }) {
   const { selectBook } = useActions()
 
   return (
-    <div className="mb-4 flex flex-col gap-2 overflow-y-scroll pb-4 text-sm sm:flex-row">
+    <div className="mb-4 grid grid-cols-3 gap-2 pb-4 text-sm sm:flex-row">
       {books.map(book => (
         <button
           key={book.id}
-          className="flex cursor-pointer flex-row gap-2 rounded-lg bg-zinc-800 p-2 text-left hover:bg-zinc-700 sm:w-52"
+          className="flex items-stretch cursor-pointer flex-row"
           onClick={async () => {
             const response = await selectBook(book)
 
@@ -35,8 +35,8 @@ export function Books({ props: books }: { props: BookMetadata[] }) {
         >
           <BookCard
             props={book}
-            height={400}
-            width={300}
+            height={300}
+            width={225}
             orientation="portrait"
             variant="small"
           />

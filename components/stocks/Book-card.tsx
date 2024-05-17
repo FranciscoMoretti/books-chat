@@ -1,8 +1,11 @@
 'use client'
 import { BookMetadata } from '@/lib/book/books-api'
+import {
+  bookPublisherImageUrl,
+  imageUrlZoomToFixedSize
+} from '@/lib/book/books-api-utils'
 import Image from 'next/image'
 import { CardContent, Card } from '@/components/ui/card'
-import { changeZoomValue } from '@/lib/book/volumeToMetadata'
 import { cn } from '@/lib/utils'
 import { BookDescription } from './book-description'
 
@@ -19,10 +22,11 @@ export function BookCard({
   orientation: 'portrait' | 'square'
   variant: 'small' | 'big'
 }) {
+  const imageUrl = bookPublisherImageUrl(book.id, width, height)
   return (
     <Card className="w-full">
       <Image
-        src={changeZoomValue(book.image, variant === 'big' ? 3 : 2)}
+        src={imageUrl}
         alt={book.title + ' book cover'}
         width={width}
         height={height}
@@ -36,11 +40,11 @@ export function BookCard({
         }}
       />
 
-      <CardContent className="p-4 space-y-2">
+      <CardContent className="p-4 space-y-2 text-left">
         <h3
           className={cn(
             'font-semibold',
-            variant === 'big' ? 'text-xl' : 'text-lg'
+            variant === 'big' ? 'text-2xl' : 'text-xl'
           )}
         >
           {book.title}
@@ -51,12 +55,17 @@ export function BookCard({
             variant === 'big' ? 'flex-row items-center' : 'flex-col '
           )}
         >
-          <p className={cn('font-medium', variant === 'big' ? 'text-lg' : '')}>
+          <p
+            className={cn(
+              'font-semibold text-muted-foreground ',
+              variant === 'big' ? 'text-lg' : ''
+            )}
+          >
             {book.author}
           </p>
           <p
             className={cn(
-              'font-medium text-gray-500 dark:text-gray-400 ',
+              'font-medium text-muted-foreground ',
               variant === 'big' ? 'text-lg' : ''
             )}
           >

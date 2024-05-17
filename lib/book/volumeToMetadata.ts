@@ -13,12 +13,12 @@ export function volumeToMetadata(item: {
     author: item.volumeInfo.authors.join(', '),
     description: item.volumeInfo.description,
     publishedDate: item.volumeInfo.publishedDate,
-    image: changeZoomValue(item.volumeInfo.imageLinks.thumbnail, 2).replace(
-      'http://',
-      'https://'
-    )
+    image: item.volumeInfo.imageLinks.thumbnail.replace('http://', 'https://')
   }
 }
+
+// WARNING: The zoom leven doesn't always work with google books API.
+// mages are sometimes not available at all zoom levels.
 export function changeZoomValue(originalUrl: string, newZoomValue: number) {
   // Check if the URL contains the 'zoom' parameter
   if (originalUrl.includes('zoom=')) {
