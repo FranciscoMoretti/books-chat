@@ -37,19 +37,19 @@ export function ChatPanel({
       message: `What are the best books about programming?`
     },
     {
-      heading: 'What is the price of',
-      subheading: '$DOGE right now?',
-      message: 'What is the price of $DOGE right now?'
+      heading: 'Recommend me',
+      subheading: 'science fiction books',
+      message: 'Can you recommend me a good science fiction books?'
     },
     {
-      heading: 'I would like to buy',
-      subheading: '42 $DOGE',
-      message: `I would like to buy 42 $DOGE`
+      heading: 'Looking for books by',
+      subheading: 'Agatha Christie',
+      message: `I'm looking for books by Agatha Christie. Any suggestions?`
     },
     {
-      heading: 'What are some',
-      subheading: `recent events about $DOGE?`,
-      message: `What are some recent events about $DOGE?`
+      heading: 'What are some classics',
+      subheading: 'on productivity?',
+      message: `What are some classics on productivity?`
     }
   ]
 
