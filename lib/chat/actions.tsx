@@ -32,10 +32,7 @@ import {
   fetchVolumesByQuery,
   fetchMultipleBooksByTitleAuthor
 } from '../book/books-api'
-import {
-  BooksDetailsSkeleton,
-  BooksSkeleton
-} from '@/components/stocks/books-skeleton'
+import { BooksSkeleton } from '@/components/stocks/books-skeleton'
 import { headers } from 'next/headers'
 import { messageRateLimit } from '../rate-limit'
 
