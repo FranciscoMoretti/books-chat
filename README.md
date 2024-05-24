@@ -13,7 +13,7 @@ Chat with aI and get books recommendations. An AI chatbot with server-side rende
   - [Radix UI](https://radix-ui.com) for headless component primitives
   - Icons from [Phosphor Icons](https://phosphoricons.com)
 - Rate limiting[Vercel KV](https://vercel.com/storage/kv)
-- Books [[Google Books API](https://developers.google.com/books)]
+- Books with [Google Books API](https://developers.google.com/books)
 
 
 
