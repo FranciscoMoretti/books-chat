@@ -15,17 +15,19 @@ export function BookCard({
   width,
   height,
   orientation,
-  variant
+  variant,
+  className
 }: {
   props: BookMetadata
   width: number
   height: number
   orientation: 'portrait' | 'square'
   variant: 'small' | 'big'
+  className?: string
 }) {
   const imageUrl = bookPublisherImageUrl(book.id, width, height)
   return (
-    <Card className="w-full">
+    <Card className={cn('w-full', className)}>
       <Image
         src={imageUrl}
         alt={book.title + ' book cover'}

@@ -32,7 +32,10 @@ import {
   fetchVolumesByQuery,
   fetchMultipleBooksByTitleAuthor
 } from '../book/books-api'
-import { BooksSkeleton } from '@/components/stocks/books-skeleton'
+import {
+  BooksDetailsSkeleton,
+  BooksSkeleton
+} from '@/components/stocks/books-skeleton'
 import { headers } from 'next/headers'
 import { messageRateLimit } from '../rate-limit'
 
@@ -140,6 +143,7 @@ async function selectBook(bookMetadata: BookMetadata) {
     bookMessage.done(
       <BotCard>
         <BookCard
+          className="transition-all duration-300"
           props={bookMetadata}
           width={400}
           height={600}
